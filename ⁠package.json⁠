@@ -1,0 +1,11 @@
+{
+  "name": "cli-task-manager",
+  "version": "1.0.0",
+  "description": "A Dockerized command-line task manager for Week 1",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Intern",
+  "license": "ISC"
+}
