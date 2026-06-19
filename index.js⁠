@@ -1,0 +1,72 @@
+const fs = require('fs');
+const path = require('path');
+
+const FILE_PATH = path.join(__dirname, 'tasks.json');
+
+// Helper function to read tasks
+function readTasks() {
+    if (!fs.existsSync(FILE_PATH)) {
+        return [];
+    }
+    const data = fs.readFileSync(FILE_PATH, 'utf8');
+    return JSON.parse(data || '[]');
+}
+
+// Helper function to write tasks
+function writeTasks(tasks) {
+    fs.writeFileSync(FILE_PATH, JSON.stringify(tasks, null, 2));
+}
+
+const args = process.argv.slice(2);
+const command = args[0];
+
+if (!command || command === 'help') {
+    console.log('Usage:');
+    console.log('  node index.js add "Task description"');
+    console.log('  node index.js list');
+    console.log('  node index.js list --filter "search_term"');
+    process.exit(0);
+}
+
+if (command === 'add') {
+    const taskText = args[1];
+    if (!taskText) {
+        console.error('Error: Please provide a task description.');
+        process.exit(1);
+    }
+    const tasks = readTasks();
+    const newTask = {
+        id: tasks.length + 1,
+        title: taskText,
+        createdAt: new Date().toISOString()
+    };
+    tasks.push(newTask);
+    writeTasks(tasks);
+    console.log(`Added task: "${taskText}"`);
+} 
+
+else if (command === 'list') {
+    let tasks = readTasks();
+    
+    // Feature Branch Requirement: Handling the --filter argument
+    const filterIndex = args.indexOf('--filter');
+    if (filterIndex !== -1 && args[filterIndex + 1]) {
+        const searchTerm = args[filterIndex + 1].toLowerCase();
+        tasks = tasks.filter(task => task.title.toLowerCase().includes(searchTerm));
+        console.log(`--- Filtered Tasks matching "${searchTerm}" ---`);
+    } else {
+        console.log('--- Task List ---');
+    }
+
+    if (tasks.length === 0) {
+        console.log('No tasks found.');
+    } else {
+        tasks.forEach(task => {
+            console.log(`[${task.id}] ${task.title}`);
+        });
+    }
+} 
+
+else {
+    console.log(`Unknown command: "${command}". Type "node index.js help" for info.`);
+}
